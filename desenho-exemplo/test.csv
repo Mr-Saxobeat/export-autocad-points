@@ -1,0 +1,5 @@
+id;tipo;desc;coord x;coord y
+0;Autodesk.AutoCAD.DatabaseServices.Polyline;SUÍTE REVERS.;4.46,4.46,1.12,1.12,3.76,3.76,;14.51,13.61,13.61,16.60,16.60,14.51,;
+1;Autodesk.AutoCAD.DatabaseServices.Polyline;QUARTO;1.12,4.46,4.46,1.12,;13.51,13.51,11.11,11.11,;
+2;Autodesk.AutoCAD.DatabaseServices.Polyline;BANHO;3.86,5.46,5.46,3.86,;16.60,16.60,14.61,14.61,;
+3;Autodesk.AutoCAD.DatabaseServices.Polyline;CIRC.;4.56,5.46,5.46,4.56,;14.51,14.51,13.61,13.61,;

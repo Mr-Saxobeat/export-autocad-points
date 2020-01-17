@@ -26,12 +26,14 @@ namespace AcadPlugin
             using (var tr = db.TransactionManager.StartTransaction())
             {
                 // Cria uma array do tipo TypedValue de tamanho 1
-                TypedValue[] acTypValAr = new TypedValue[1];
+                TypedValue[] acTypValAr = new TypedValue[2];
 
                 // Atribui o valor do index 0, este valor é um par ordenado
                 // DxfCode.Start é o tipo (Objeto) e o "LWPOLYLINE" especifica que o 
                 // objeto a ser selecionado é uma polyline.
                 acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "LWPOLYLINE"), 0);
+                acTypValAr.SetValue(new TypedValue((int)DxfCode.LayerName, "LANG-PAREDE"), 1);
+                
 
                 // Atribui o array de par ordenado ao filtro de seleção
                 SelectionFilter acSelFtr = new SelectionFilter(acTypValAr);
@@ -49,6 +51,8 @@ namespace AcadPlugin
                     StringBuilder yCoord = new StringBuilder();
                     StringBuilder csv = new StringBuilder();
                     Polyline objPoly;
+                    MText objMText;
+                    string desc;
                     Point2d pt = new Point2d();
                     int numVert;
                     int cont = 0;
@@ -81,11 +85,17 @@ namespace AcadPlugin
                         acSelFtr = new SelectionFilter(acTypValAr);
                         acSSPrompt = ed.SelectWindowPolygon(arPts, acSelFtr);
 
-                        acSSet = acSSPrompt.Value;
-                        ObjectId[] idMText = new ObjectId[acSSet.Count];
-                        idMText = acSSet.GetObjectIds();
+                        desc = "Sem descrição";
+                        if(acSSPrompt.Status == PromptStatus.OK)
+                        {
+                            acSSet = acSSPrompt.Value;
+                            ObjectId[] idMText = new ObjectId[acSSet.Count];
+                            idMText = acSSet.GetObjectIds();
 
-                        MText objMText = tr.GetObject(idMText[0], OpenMode.ForRead) as MText;
+                            objMText = tr.GetObject(idMText[0], OpenMode.ForRead) as MText;
+                            desc = objMText.Text;
+                        }
+
 
                         if (numVert > 4) numVert--;
                         for (int j = 0; j < numVert; j++)
@@ -96,7 +106,7 @@ namespace AcadPlugin
                             yCoord.Append(pt.Y.ToString("n2") + ",");
                         }
 
-                        csv.AppendLine(cont + ";" + objPoly.GetType() + ";" + objMText.Text + ";" + xCoord + ";" + yCoord + ";");
+                        csv.AppendLine(cont + ";" + objPoly.Layer.ToString().Substring(5) + ";" + desc + ";" + xCoord + ";" + yCoord + ";");
                         cont++;
                     }
 

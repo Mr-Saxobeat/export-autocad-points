@@ -25,6 +25,7 @@ namespace AcadPlugin
 
             using (var tr = db.TransactionManager.StartTransaction())
             {
+                #region Create selection set filter
                 // Cria uma array do tipo TypedValue de tamanho 1
                 TypedValue[] acTypValAr = new TypedValue[2];
 
@@ -34,21 +35,21 @@ namespace AcadPlugin
                 acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "LWPOLYLINE"), 0);
                 acTypValAr.SetValue(new TypedValue((int)DxfCode.LayerName, "LANG-PAREDE"), 1);
                 
-
                 // Atribui o array de par ordenado ao filtro de seleção
                 SelectionFilter acSelFtr = new SelectionFilter(acTypValAr);
+                #endregion
 
                 // Cria o selection set e pede ao usuário para selecionar
                 // através do método GetSelection
                 PromptSelectionResult acSSPrompt = ed.GetSelection(acSelFtr);
 
-                // Se a seleção estiver OK, quer dizer que os objetos foram
-                // selecionados
-                if(acSSPrompt.Status == PromptStatus.OK)
+                // Se a seleção estiver OK, quer dizer que 
+                // os objetos foram selecionados
+                if (acSSPrompt.Status == PromptStatus.OK)
                 {
                     SelectionSet acSSet = acSSPrompt.Value;
-                    StringBuilder xCoord = new StringBuilder();
-                    StringBuilder yCoord = new StringBuilder();
+                    StringBuilder[] coords = new StringBuilder[2];
+
                     StringBuilder csv = new StringBuilder();
                     Polyline objPoly;
                     MText objMText;
@@ -63,20 +64,22 @@ namespace AcadPlugin
                     
                     foreach(ObjectId objID in idArray)
                     {
-                        xCoord.Clear();
-                        yCoord.Clear();
-
                         objPoly = tr.GetObject(objID, OpenMode.ForRead) as Polyline;
+
+                        Point3dCollection arPts = new Point3dCollection();
+                        GetCoordsOf(objPoly, arPts);
 
                         // Iterar com cada ponto da polyline
                         numVert = objPoly.NumberOfVertices;
 
-                        Point3dCollection arPts = new Point3dCollection();
 
                         for (int j = 0; j < numVert; j++)
                         {
                             arPts.Add(objPoly.GetPoint3dAt(j));
+                            
                         }
+
+                        
 
                         acTypValAr = new TypedValue[2];
                         acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "MTEXT"), 0);
@@ -112,7 +115,8 @@ namespace AcadPlugin
 
 
 
-                    // Mudar o local de salvar *******************************************************************************************
+                    // Mudar o local de salvar **************************************************************************************************************************************************************************************
+                    // **************************************************************************************************************************************************************************************
                     if (Directory.Exists("C:/Users/" + Environment.UserName + "." + Environment.UserDomainName))
                     {
                         File.WriteAllText("C:/Users/" + Environment.UserName + "." + Environment.UserDomainName + "/Desktop/test" + DateTime.Now.Millisecond.ToString() + ".csv",
@@ -123,15 +127,21 @@ namespace AcadPlugin
                         File.WriteAllText("C:/Users/" + Environment.UserName + "/Desktop/test" + DateTime.Now.Millisecond.ToString() + ".csv",
                         csv.ToString());
                     }
-                    
+                    // **************************************************************************************************************************************************************************************
+                    // **************************************************************************************************************************************************************************************
 
 
 
-                    
+
                 }
 
                 tr.Commit();
             }
+        }
+
+        public void GetCoordsOf(Polyline objPoly, Point3dCollection arPts)
+        {
+         
         }
     }
 }

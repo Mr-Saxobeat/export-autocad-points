@@ -124,7 +124,7 @@ namespace AcadPlugin
             // todas coordenadas X e Y numa array.
             coords[0] = "";
             coords[1] = "";
-            if (numVert > 4) numVert--; // Se o ambiente tem mais que 4 pontos, o último não é necessário, pois é o mesmo ponto inicial.
+            if (numVert > 4) numVert--; // Se o ambiente tem mais que 4 pontos, o último não é necessário, pois é o mesmo ponto inicial
             for (int i = 0; i < numVert; i++)
             {
                 pt = objPoly.GetPoint3dAt(i);

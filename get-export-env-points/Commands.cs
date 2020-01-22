@@ -48,13 +48,12 @@ namespace AcadPlugin
                 if (acSSPrompt.Status == PromptStatus.OK)
                 {
                     SelectionSet acSSet = acSSPrompt.Value;
-                    StringBuilder[] coords = new StringBuilder[2];
-
                     StringBuilder csv = new StringBuilder();
                     Polyline objPoly;
+                    String[] coords = new string[2];
+                    Point3dCollection acPt3dCol = new Point3dCollection();
                     MText objMText;
                     string desc;
-                    Point2d pt = new Point2d();
                     int numVert;
                     int cont = 0;
 
@@ -66,27 +65,15 @@ namespace AcadPlugin
                     {
                         objPoly = tr.GetObject(objID, OpenMode.ForRead) as Polyline;
 
-                        Point3dCollection arPts = new Point3dCollection();
-                        GetCoordsOf(objPoly, arPts);
-
-                        // Iterar com cada ponto da polyline
                         numVert = objPoly.NumberOfVertices;
-
-
-                        for (int j = 0; j < numVert; j++)
-                        {
-                            arPts.Add(objPoly.GetPoint3dAt(j));
-                            
-                        }
-
-                        
+                        GetCoordsOf(objPoly, coords, numVert,acPt3dCol);
 
                         acTypValAr = new TypedValue[2];
                         acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "MTEXT"), 0);
                         acTypValAr.SetValue(new TypedValue((int)DxfCode.Text, "[A-Z]*"), 1);
 
                         acSelFtr = new SelectionFilter(acTypValAr);
-                        acSSPrompt = ed.SelectWindowPolygon(arPts, acSelFtr);
+                        acSSPrompt = ed.SelectWindowPolygon(acPt3dCol, acSelFtr);
 
                         desc = "Sem descrição";
                         if(acSSPrompt.Status == PromptStatus.OK)
@@ -99,17 +86,7 @@ namespace AcadPlugin
                             desc = objMText.Text;
                         }
 
-
-                        if (numVert > 4) numVert--;
-                        for (int j = 0; j < numVert; j++)
-                        {
-                            pt = objPoly.GetPoint2dAt(j);
-
-                            xCoord.Append(pt.X.ToString("n2") + ",");
-                            yCoord.Append(pt.Y.ToString("n2") + ",");
-                        }
-
-                        csv.AppendLine(cont + ";" + objPoly.Layer.ToString().Substring(5) + ";" + desc + ";" + xCoord + ";" + yCoord + ";");
+                        csv.AppendLine(cont + ";" + objPoly.Layer.ToString().Substring(5) + ";" + desc + ";" + coords[0] + ";" + coords[1] + ";");
                         cont++;
                     }
 
@@ -139,9 +116,22 @@ namespace AcadPlugin
             }
         }
 
-        public void GetCoordsOf(Polyline objPoly, Point3dCollection arPts)
+        public void GetCoordsOf(Polyline objPoly, String[] coords, int numVert, Point3dCollection acPt3dcol)
         {
-         
+            Point3d pt;
+
+            // Iterar com cada ponto da polyline e concatenar
+            // todas coordenadas X e Y numa array.
+            coords[0] = "";
+            coords[1] = "";
+            if (numVert > 4) numVert--; // Se o ambiente tem mais que 4 pontos, o último não é necessário, pois é o mesmo ponto inicial.
+            for (int i = 0; i < numVert; i++)
+            {
+                pt = objPoly.GetPoint3dAt(i);
+                acPt3dcol.Add(pt);
+                coords[0] = coords[0] + pt.X.ToString() + ',';
+                coords[1] = coords[1] + pt.Y.ToString() + ',';
+            }
         }
     }
 }

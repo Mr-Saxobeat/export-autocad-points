@@ -1,6 +1,5 @@
 
-*.ide-shm
-*.dwl
-*.dwl2
+*.suo
+*.ide
 *.ide-shm
 *.ide-wal

@@ -2,3 +2,5 @@
 *.ide-shm
 *.dwl
 *.dwl2
+*.ide-shm
+*.ide-wal

@@ -15,8 +15,8 @@ namespace AcadPlugin
 {
     public class Commands
     {
-        [CommandMethod("TEST")]
-        public void Test()
+        [CommandMethod("EPA")]
+        public void Main()
         {
 
             Document doc = AcAp.DocumentManager.MdiActiveDocument;
@@ -47,26 +47,25 @@ namespace AcadPlugin
                 // os objetos foram selecionados
                 if (acSSPrompt.Status == PromptStatus.OK)
                 {
+                    FileStream fileCsv = new FileStream("C:/Users/weiglas.ribeiro.LANGAMER/Desktop/AAA.csv", FileMode.Create);
+                    StreamWriter strWrt = new StreamWriter(fileCsv, Encoding.UTF8);
                     SelectionSet acSSet = acSSPrompt.Value;
-                    StringBuilder csv = new StringBuilder();
                     Polyline objPoly;
-                    String[] coords = new string[2];
-                    Point3dCollection acPt3dCol = new Point3dCollection();
+                    Point3dCollection acPt3dCol;
                     MText objMText;
-                    string desc;
-                    int numVert;
-                    int cont = 0;
+                    string sTipo;
+                    string sDesc = "";
+                    int id = 0;
 
-                    csv.AppendLine("id;tipo;desc;coord x;coord y");
-                    ObjectId[] idArray = new ObjectId[acSSet.Count];
-                    idArray = acSSet.GetObjectIds();
-                    
-                    foreach(ObjectId objID in idArray)
+                    strWrt.WriteLine("id;tipo;desc;coord x;coord y");
+
+                    foreach (SelectedObject aObj in acSSet)
                     {
-                        objPoly = tr.GetObject(objID, OpenMode.ForRead) as Polyline;
+                        objPoly = tr.GetObject(aObj.ObjectId, OpenMode.ForRead) as Polyline;
 
-                        numVert = objPoly.NumberOfVertices;
-                        GetCoordsOf(objPoly, coords, numVert,acPt3dCol);
+                        sTipo = objPoly.Layer.ToString().Substring(5);
+                        //GetCoordsOf(objPoly, coords, numVert,acPt3dCol);
+                        acPt3dCol = GetCoordsOf(objPoly);
 
                         acTypValAr = new TypedValue[2];
                         acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "MTEXT"), 0);
@@ -75,63 +74,50 @@ namespace AcadPlugin
                         acSelFtr = new SelectionFilter(acTypValAr);
                         acSSPrompt = ed.SelectWindowPolygon(acPt3dCol, acSelFtr);
 
-                        desc = "Sem descrição";
-                        if(acSSPrompt.Status == PromptStatus.OK)
+                        if (acSSPrompt.Status == PromptStatus.OK)
                         {
-                            acSSet = acSSPrompt.Value;
-                            ObjectId[] idMText = new ObjectId[acSSet.Count];
-                            idMText = acSSet.GetObjectIds();
+                            SelectionSet acSSInsideEnv = acSSPrompt.Value;
+                            ObjectId[] idMText = new ObjectId[acSSInsideEnv.Count];
+                            idMText = acSSInsideEnv.GetObjectIds();
 
                             objMText = tr.GetObject(idMText[0], OpenMode.ForRead) as MText;
-                            desc = objMText.Text;
+                            sDesc = objMText.Text;
                         }
 
-                        csv.AppendLine(cont + ";" + objPoly.Layer.ToString().Substring(5) + ";" + desc + ";" + coords[0] + ";" + coords[1] + ";");
-                        cont++;
+                        // Escreve os dados do ambiente no arquivo
+                        strWrt.Write(id + ";" + sTipo + ";" + sDesc + ";");
+                        foreach(Point3d pt in acPt3dCol) strWrt.Write(" " + pt.X.ToString("n2") + ",");
+                        strWrt.Write(";");
+                        foreach (Point3d pt in acPt3dCol) strWrt.Write(" " + pt.Y.ToString("n2") + ",");
+                        strWrt.WriteLine(";");
+
+                        id++;
                     }
 
-
-
-                    // Mudar o local de salvar **************************************************************************************************************************************************************************************
-                    // **************************************************************************************************************************************************************************************
-                    if (Directory.Exists("C:/Users/" + Environment.UserName + "." + Environment.UserDomainName))
-                    {
-                        File.WriteAllText("C:/Users/" + Environment.UserName + "." + Environment.UserDomainName + "/Desktop/test" + DateTime.Now.Millisecond.ToString() + ".csv",
-                        csv.ToString());
-                    }
-                    else
-                    {
-                        File.WriteAllText("C:/Users/" + Environment.UserName + "/Desktop/test" + DateTime.Now.Millisecond.ToString() + ".csv",
-                        csv.ToString());
-                    }
-                    // **************************************************************************************************************************************************************************************
-                    // **************************************************************************************************************************************************************************************
-
-
-
-
+                    strWrt.Close();
                 }
-
                 tr.Commit();
             }
         }
 
-        public void GetCoordsOf(Polyline objPoly, String[] coords, int numVert, Point3dCollection acPt3dcol)
+        public Point3dCollection GetCoordsOf(Polyline objPoly)
         {
             Point3d pt;
+            Point3dCollection point3DCollection = new Point3dCollection();
+            int numVert;
+
+            numVert = objPoly.NumberOfVertices;
 
             // Iterar com cada ponto da polyline e concatenar
             // todas coordenadas X e Y numa array.
-            coords[0] = "";
-            coords[1] = "";
             if (numVert > 4) numVert--; // Se o ambiente tem mais que 4 pontos, o último não é necessário, pois é o mesmo ponto inicial
             for (int i = 0; i < numVert; i++)
             {
                 pt = objPoly.GetPoint3dAt(i);
-                acPt3dcol.Add(pt);
-                coords[0] = coords[0] + pt.X.ToString() + ',';
-                coords[1] = coords[1] + pt.Y.ToString() + ',';
+                point3DCollection.Add(pt);
             }
+
+            return point3DCollection;
         }
     }
 }

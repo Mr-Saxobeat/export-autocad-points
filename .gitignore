@@ -1,4 +1,2 @@
-*.suo
-*.ide
-*.ide-shm
-*.ide-wal
+*.dwl
+*.dwl2

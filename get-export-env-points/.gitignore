@@ -1,0 +1,13 @@
+*.dwl
+*.dwl2
+*.suo
+*.dll
+*.dll
+*.pdb
+*.cache
+*.ide
+*.ide-wal
+*.sqlite
+*.ide-shm
+*.json
+

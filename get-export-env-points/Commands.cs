@@ -47,7 +47,8 @@ namespace AcadPlugin
                 if (acSSPrompt.Status == PromptStatus.OK)
                 {
                     string curDwgPath = Directory.GetCurrentDirectory();
-                    FileStream fileCsv = new FileStream(curDwgPath + "\\pontos-do-ambiente.csv", FileMode.Create);
+                    string csvPath = curDwgPath + "\\pontos-do-ambiente.csv";
+                    FileStream fileCsv = new FileStream(csvPath, FileMode.Create);
                     StreamWriter strWrt = new StreamWriter(fileCsv, Encoding.UTF8);
                     SelectionSet acSSet = acSSPrompt.Value;
                     Polyline objPoly;
@@ -94,6 +95,7 @@ namespace AcadPlugin
                         id++;
                     }
 
+                    ed.WriteMessage("Arquivo criado em: " + csvPath);
                     strWrt.Close();
                 }
                 tr.Commit();

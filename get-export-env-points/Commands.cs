@@ -46,7 +46,8 @@ namespace AcadPlugin
                 // os objetos foram selecionados
                 if (acSSPrompt.Status == PromptStatus.OK)
                 {
-                    FileStream fileCsv = new FileStream("C:/Users/weiglas.ribeiro.LANGAMER/Desktop/AAA.csv", FileMode.Create);
+                    string curDwgPath = Directory.GetCurrentDirectory();
+                    FileStream fileCsv = new FileStream(curDwgPath + "\\pontos-do-ambiente.csv", FileMode.Create);
                     StreamWriter strWrt = new StreamWriter(fileCsv, Encoding.UTF8);
                     SelectionSet acSSet = acSSPrompt.Value;
                     Polyline objPoly;

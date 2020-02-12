@@ -32,7 +32,7 @@ namespace AcadPlugin
                 // DxfCode.Start é o tipo (Objeto) e o "LWPOLYLINE" especifica que o 
                 // objeto a ser selecionado é uma polyline.
                 acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "LWPOLYLINE"), 0);
-                acTypValAr.SetValue(new TypedValue((int)DxfCode.LayerName, "LANG-PAREDE"), 1);
+                //acTypValAr.SetValue(new TypedValue((int)DxfCode.LayerName, "LANG-PAREDE"), 1);
                 
                 // Atribui o array de par ordenado ao filtro de seleção
                 SelectionFilter acSelFtr = new SelectionFilter(acTypValAr);

@@ -15,6 +15,15 @@ namespace AcadPlugin
 {
     public class Commands
     {
+        // EXPORTA PONTOS DO AMBIENTE PARA UM ARQUIVO .CSV
+        // Este comando lê polylines selecionadas que representam as
+        // paredes do ambiente e escreve num arquivo .csv 
+        // as informações na seguinte ordem: 
+        // - um index do ambiente (id),
+        // - o tipo (parede, ou outra coisa), 
+        // - a descrição (texto encontrado dentro do polyline), 
+        // - coordenadas x de seus pontos e 
+        // - coordenadas y de seus pontos
         [CommandMethod("EPA")]
         public void Main()
         {

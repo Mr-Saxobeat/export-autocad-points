@@ -35,7 +35,7 @@ namespace AcadPlugin
             {
                 #region Create selection set filter
                 // Cria uma array do tipo TypedValue de tamanho 1
-                TypedValue[] acTypValAr = new TypedValue[2];
+                TypedValue[] acTypValAr = new TypedValue[1];
 
                 // Atribui o valor do index 0, este valor é um par ordenado
                 // DxfCode.Start é o tipo (Objeto) e o "LWPOLYLINE" especifica que o 
@@ -55,7 +55,7 @@ namespace AcadPlugin
                 // os objetos foram selecionados
                 if (acSSPrompt.Status == PromptStatus.OK)
                 {
-                    string curDwgPath = Directory.GetCurrentDirectory();
+                    string curDwgPath = AcAp.GetSystemVariable("DWGPREFIX").ToString();    
                     string csvPath = curDwgPath + "\\pontos-do-ambiente.csv";
                     FileStream fileCsv = new FileStream(csvPath, FileMode.Create);
                     StreamWriter strWrt = new StreamWriter(fileCsv, Encoding.UTF8);
@@ -71,37 +71,41 @@ namespace AcadPlugin
 
                     foreach (SelectedObject aObj in acSSet)
                     {
+
                         objPoly = tr.GetObject(aObj.ObjectId, OpenMode.ForRead) as Polyline;
 
-                        sTipo = objPoly.Layer.ToString().Substring(5);
-                        //GetCoordsOf(objPoly, coords, numVert,acPt3dCol);
-                        acPt3dCol = GetCoordsOf(objPoly);
-
-                        acTypValAr = new TypedValue[2];
-                        acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "MTEXT"), 0);
-                        acTypValAr.SetValue(new TypedValue((int)DxfCode.Text, "[A-Z]*"), 1);
-
-                        acSelFtr = new SelectionFilter(acTypValAr);
-                        acSSPrompt = ed.SelectWindowPolygon(acPt3dCol, acSelFtr);
-
-                        if (acSSPrompt.Status == PromptStatus.OK)
+                        if(objPoly.Layer.Length > 5)
                         {
-                            SelectionSet acSSInsideEnv = acSSPrompt.Value;
-                            ObjectId[] idMText = new ObjectId[acSSInsideEnv.Count];
-                            idMText = acSSInsideEnv.GetObjectIds();
+                            sTipo = objPoly.Layer.ToString().Substring(5);
+                            //GetCoordsOf(objPoly, coords, numVert,acPt3dCol);
+                            acPt3dCol = GetCoordsOf(objPoly);
 
-                            objMText = tr.GetObject(idMText[0], OpenMode.ForRead) as MText;
-                            sDesc = objMText.Text;
+                            acTypValAr = new TypedValue[2];
+                            acTypValAr.SetValue(new TypedValue((int)DxfCode.Start, "MTEXT"), 0);
+                            acTypValAr.SetValue(new TypedValue((int)DxfCode.Text, "[A-Z]*"), 1);
+
+                            acSelFtr = new SelectionFilter(acTypValAr);
+                            acSSPrompt = ed.SelectWindowPolygon(acPt3dCol, acSelFtr);
+
+                            if (acSSPrompt.Status == PromptStatus.OK)
+                            {
+                                SelectionSet acSSInsideEnv = acSSPrompt.Value;
+                                ObjectId[] idMText = new ObjectId[acSSInsideEnv.Count];
+                                idMText = acSSInsideEnv.GetObjectIds();
+
+                                objMText = tr.GetObject(idMText[0], OpenMode.ForRead) as MText;
+                                sDesc = objMText.Text;
+                            }
+
+                            // Escreve os dados do ambiente no arquivo
+                            strWrt.Write(id + ";" + sTipo + ";" + sDesc + ";");
+                            foreach(Point3d pt in acPt3dCol) strWrt.Write(" " + pt.X.ToString("n2") + ",");
+                            strWrt.Write(";");
+                            foreach (Point3d pt in acPt3dCol) strWrt.Write(" " + pt.Y.ToString("n2") + ",");
+                            strWrt.WriteLine(";");
+
+                            id++;
                         }
-
-                        // Escreve os dados do ambiente no arquivo
-                        strWrt.Write(id + ";" + sTipo + ";" + sDesc + ";");
-                        foreach(Point3d pt in acPt3dCol) strWrt.Write(" " + pt.X.ToString("n2") + ",");
-                        strWrt.Write(";");
-                        foreach (Point3d pt in acPt3dCol) strWrt.Write(" " + pt.Y.ToString("n2") + ",");
-                        strWrt.WriteLine(";");
-
-                        id++;
                     }
 
                     ed.WriteMessage("Arquivo criado em: " + csvPath);

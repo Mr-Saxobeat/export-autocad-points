@@ -9,3 +9,4 @@ C:\Users\weiglas.ribeiro\Documents\GitHub\export-autocad-points\get-export-env-p
 C:\Users\weiglas.ribeiro\Documents\GitHub\export-autocad-points\get-export-env-points\bin\Release\get-export-env-points.pdb
 C:\Users\weiglas.ribeiro\Documents\GitHub\export-autocad-points\get-export-env-points\obj\Release\get-export-env-points.dll
 C:\Users\weiglas.ribeiro\Documents\GitHub\export-autocad-points\get-export-env-points\obj\Release\get-export-env-points.pdb
+C:\Users\weiglas.ribeiro\Documents\GitHub\export-autocad-points\get-export-env-points\obj\Release\get-export-env-points.csprojAssemblyReference.cache

@@ -77,7 +77,6 @@ namespace AcadPlugin
                         if(objPoly.Layer.Length > 5)
                         {
                             sTipo = objPoly.Layer.ToString().Substring(5);
-                            //GetCoordsOf(objPoly, coords, numVert,acPt3dCol);
                             acPt3dCol = GetCoordsOf(objPoly);
 
                             acTypValAr = new TypedValue[2];
